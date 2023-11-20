@@ -15,7 +15,7 @@ pt.options.supress_output.set(False)
 pt.options.parallel.set(True)
 pt.options.debug_mode.set(False)
 
-df=pd.read_pickle(f"/simulations/data0.df")
+df=pd.read_pickle(f"simulations/data0.df")
 
 
 
