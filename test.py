@@ -11,15 +11,15 @@ import time
 pt.options.pqdkm.set([2,2,0,2,2])
 pt.options.fixed_random_group_eff.set(2)
 pt.options.fixed_random_time_eff.set(2)
-pt.options.supress_output.set(False)
-pt.options.parallel.set(True)
+pt.options.supress_output.set(True)
 pt.options.debug_mode.set(False)
+pt.options.use_analytical.set(2)
 
 df=pd.read_pickle(f"simulations/data0.df")
 
-
-
-
+t = time.time()
+pt.enable_parallel()
+print(f"Took {time.time()-t} to enable paralell")
 
 import cProfile
 profiler = cProfile.Profile()
