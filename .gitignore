@@ -1,2 +1,7 @@
 *.csv
 *.df
+*.DS_Store
+*.wpu
+*.wpr
+.virtual_documents
+.ipynb_checkpoints

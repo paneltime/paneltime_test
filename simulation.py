@@ -6,27 +6,54 @@ import numpy as np
 import pandas as pd
 import os
 
-N=5
-T=1000
-k=2
-I=np.diag(np.ones(T))
-zero=I*0
-ar=0.5
+N = 1
+T = 1000
+k = 2
+I = np.diag(np.ones(T))
+ZERO = I*0
+AR = 0.3
+MA = 0.3
+RANDOM_EFFECT_VOL = 0
+RESIDUAL_VOL = 1
+SAMP_SIZE = 1000
+
+#Defining the fixed ARMA and GARCH matrices
+def lag_matr(L,args):
+	k=len(args)
+	L=1*L
+	r=np.arange(len(L))
+	for i in range(k):
+		d=(r[i+1:],r[:-i-1])
+		L[d]=args[i]
+	return L
+
+M_AR=lag_matr(I,[-AR,AR]) #AR means process
+M_MA=lag_matr(I,[AR,-AR]) #MA means process
+M_MA_1=np.linalg.inv(M_MA)
+M_MA_1AR=np.dot(M_MA_1,M_AR)
+M_AR_1MA=np.linalg.inv(M_MA_1AR)
+
+V_AR=-lag_matr(-I,[MA, -MA]) #MA variance process
+V_MA=lag_matr(ZERO,[-MA, MA]) #AR variance process
+V_AR_1=np.linalg.inv(V_AR)
+V_AR_1MA=np.dot(V_AR_1,V_MA)
+
+
 #Creating conversion matrices:
 
 def main():
-	for i in range(1000):
+	for i in range(SAMP_SIZE):
 		print(f"Creating sample {i}")
 		create_sample(i, 'simulations')	
 		
 def create_sample(sid, directory):
 	#Generating random variables:
 	X0=np.random.normal(size=(T,N,k))
-	u0=10*np.random.normal(size=(T,N,1))
+	u0=RESIDUAL_VOL*np.random.normal(size=(T,N,1))
 	
 	#Adding random effects:
-	X0=RE(X0)
-	u0=RE(u0)
+	X0=RE(X0, RANDOM_EFFECT_VOL)
+	u0=RE(u0, RANDOM_EFFECT_VOL)
 	
 	print("Adding ARMA:")
 	X1=ARMA(X0)
@@ -79,33 +106,14 @@ def create_sample(sid, directory):
 	df.to_csv(fname+'csv')
 
 
-def lag_matr(L,args):
-	k=len(args)
-	L=1*L
-	r=np.arange(len(L))
-	for i in range(k):
-		d=(r[i+1:],r[:-i-1])
-		L[d]=args[i]
-	return L
-
-M_AR=lag_matr(I,[-0.2,0.2]) #AR means process
-M_MA=lag_matr(I,[0.2,-0.2]) #MA means process
-M_MA_1=np.linalg.inv(M_MA)
-M_MA_1AR=np.dot(M_MA_1,M_AR)
-M_AR_1MA=np.linalg.inv(M_MA_1AR)
-
-V_AR=-lag_matr(-I,[0.5,-0.50]) #MA variance process
-V_MA=lag_matr(zero,[-0.5,0.50]) #AR variance process
-V_AR_1=np.linalg.inv(V_AR)
-V_AR_1MA=np.dot(V_AR_1,V_MA)
 
 
 #creating random variables:
 
-def RE(X):
+def RE(X,vol):
 	"Returns X after RE, ARIMA and GARCH "
-	X_RE_t=np.random.normal(size=(T,1,1))
-	X_RE_i=np.random.normal(size=(1,N,1))
+	X_RE_t=vol*np.random.normal(size=(T,1,1))
+	X_RE_i=vol*np.random.normal(size=(1,N,1))
 	X_RE=X+X_RE_t+X_RE_i
 	return X_RE
 
