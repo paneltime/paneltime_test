@@ -1,0 +1,32 @@
+N:1
+
+T:1000
+
+k:2
+
+AR:0.3
+
+MA:0.3
+
+RANDOM_EFFECT_VOL:0
+
+RESIDUAL_VOL:1
+
+SAMP_SIZE:1000
+
+DIRECTORY:simulations
+
+lag_matr:<function lag_matr at 0x000001F509933CE0>
+
+main:<function main at 0x000001F5386B4E00>
+
+save_settings:<function save_settings at 0x000001F53A71A520>
+
+create_sample:<function create_sample at 0x000001F53A71A8E0>
+
+RE:<function RE at 0x000001F53A71A980>
+
+ARMA:<function ARMA at 0x000001F53A71AA20>
+
+GARCH:<function GARCH at 0x000001F53A71AAC0>
+

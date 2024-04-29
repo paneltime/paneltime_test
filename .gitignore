@@ -5,3 +5,4 @@
 *.wpr
 .virtual_documents
 .ipynb_checkpoints
+.xlsx

@@ -16,8 +16,10 @@ MA = 0.3
 RANDOM_EFFECT_VOL = 0
 RESIDUAL_VOL = 1
 SAMP_SIZE = 1000
+DIRECTORY = 'simulations'
 
 #Defining the fixed ARMA and GARCH matrices
+
 def lag_matr(L,args):
 	k=len(args)
 	L=1*L
@@ -33,8 +35,8 @@ M_MA_1=np.linalg.inv(M_MA)
 M_MA_1AR=np.dot(M_MA_1,M_AR)
 M_AR_1MA=np.linalg.inv(M_MA_1AR)
 
-V_AR=-lag_matr(-I,[MA, -MA]) #MA variance process
-V_MA=lag_matr(ZERO,[-MA, MA]) #AR variance process
+V_AR=-lag_matr(-I,[MA, -0.5*MA]) #MA variance process
+V_MA=lag_matr(ZERO,[MA, -0.5*MA]) #AR variance process
 V_AR_1=np.linalg.inv(V_AR)
 V_AR_1MA=np.dot(V_AR_1,V_MA)
 
@@ -42,11 +44,26 @@ V_AR_1MA=np.dot(V_AR_1,V_MA)
 #Creating conversion matrices:
 
 def main():
+
+	save_settings()
 	for i in range(SAMP_SIZE):
 		print(f"Creating sample {i}")
-		create_sample(i, 'simulations')	
+		create_sample(i)	
 		
-def create_sample(sid, directory):
+
+def save_settings():
+	if not os.path.exists(DIRECTORY):
+		os.makedirs(DIRECTORY)	
+	f = open(f"{DIRECTORY}/settings.txt",'w')
+	d = dict(globals())
+	for k in d:
+		if ((not '__' in k) and (not type(d[k])==np.ndarray) and 
+			(not k in ['np', 'pd', 'os'])):
+			f.write(f"{k}:{d[k]}\n\n")
+	f.close()
+
+
+def create_sample(sid):
 	#Generating random variables:
 	X0=np.random.normal(size=(T,N,k))
 	u0=RESIDUAL_VOL*np.random.normal(size=(T,N,1))
@@ -99,9 +116,7 @@ def create_sample(sid, directory):
 	df['V_AR_1MA'] = np.array([V_AR_1MA[:,0][::-1] for i in range(N)]).flatten()
 	df=pd.DataFrame(df)
 	
-	if not os.path.exists(directory):
-		os.makedirs(directory)	
-	fname = f"{directory}/data{sid}."
+	fname = f"{DIRECTORY}/data{sid}."
 	df.to_pickle(fname+'df')
 	df.to_csv(fname+'csv')
 
